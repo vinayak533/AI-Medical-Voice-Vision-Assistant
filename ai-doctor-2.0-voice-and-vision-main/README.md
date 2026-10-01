@@ -2,7 +2,7 @@
 
 A Gradio prototype that accepts a spoken question and an optional image, transcribes the audio, generates a context-aware response when an image is supplied, and reads the response aloud. It is a learning project for a multimodal inference workflow, not a clinically validated diagnostic tool.
 
-![Voice and image inputs ready in the Gradio interface](ai-doctor-2.0-voice-and-vision-main/portfolio-images/06-voice-and-image-ready.png)
+![Voice and image inputs ready in the Gradio interface](portfolio-images/06-voice-and-image-ready.png)
 
 *The current interface with a recorded question and a skin image ready for processing.*
 
@@ -12,16 +12,16 @@ A Gradio prototype that accepts a spoken question and an optional image, transcr
 
 ### Saved analysis
 
-![Saved transcript and analysis beside the corresponding audio and image](ai-doctor-2.0-voice-and-vision-main/portfolio-images/07-saved-analysis.png)
+![Saved transcript and analysis beside the corresponding audio and image](portfolio-images/07-saved-analysis.png)
 
 *An archived local run displayed in the current interface. The transcript and response are the exact saved values; the read-only text areas were expanded for legibility. This image does not represent a new model call.*
 
 | Voice capture | Image input |
 | --- | --- |
-| ![Recorded audio waveform and playback controls](ai-doctor-2.0-voice-and-vision-main/portfolio-images/03-voice-captured.png) | ![Scalp image loaded in the diagnostic input](ai-doctor-2.0-voice-and-vision-main/portfolio-images/05-scalp-image-input.png) |
+| ![Recorded audio waveform and playback controls](portfolio-images/03-voice-captured.png) | ![Scalp image loaded in the diagnostic input](portfolio-images/05-scalp-image-input.png) |
 | A recorded patient question can be reviewed before submission. | The same image input accepts different visual cases. |
 
-[View all seven screenshots](ai-doctor-2.0-voice-and-vision-main/portfolio-images/).
+[View all seven screenshots](portfolio-images/).
 
 ## What the application does
 
