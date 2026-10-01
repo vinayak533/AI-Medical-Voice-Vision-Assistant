@@ -25,11 +25,10 @@ A Gradio prototype that accepts a spoken question and an optional image, transcr
 
 ## What the application does
 
-- Captures microphone audio in the browser through Gradio's audio component.
-- Transcribes the recording with Groq-hosted Whisper `whisper-large-v3`.
-- When an image is provided, combines the transcript with a prompt and sends the image to Groq's `meta-llama/llama-4-scout-17b-16e-instruct` vision model.
-- Shows the transcript and generated response in the interface, then synthesizes the response with ElevenLabs for audio playback.
-- Requires audio to submit. If no image is supplied, returns a fixed no-image message and still synthesizes that message.
+- 🎙️ **Voice input:** Captures microphone audio through Gradio and transcribes it with Groq-hosted Whisper `whisper-large-v3`.
+- 🖼️ **Image analysis:** When an image is provided, combines the transcript with a prompt and sends the image to Groq's `meta-llama/llama-4-scout-17b-16e-instruct` vision model.
+- 🔊 **Spoken response:** Displays the transcript and response, then synthesizes the response with ElevenLabs for audio playback.
+- **Input behavior:** Audio is required. Without an image, the app returns a fixed no-image message and still synthesizes that message.
 
 The app does not keep a conversation history or make a medical diagnosis that has been independently verified.
 
