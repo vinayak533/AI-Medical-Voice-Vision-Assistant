@@ -1,78 +1,126 @@
-# AI Medical Voice & Vision Assistant
+<div align="center">
+  <h1>AI Medical Voice &amp; Vision Assistant</h1>
+  <p>A local Gradio prototype for developers exploring medical voice and image workflows: a spoken question and optional image become a transcript, response, and spoken playback.</p>
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square" alt="Python 3.11" width="90">
+    <img src="https://img.shields.io/badge/Gradio-5.12.0-F97316?style=flat-square" alt="Gradio 5.12.0" width="100">
+    <img src="https://img.shields.io/badge/Groq-Whisper%20%2B%20Vision-F55036?style=flat-square" alt="Groq transcription and vision" width="150">
+    <img src="https://img.shields.io/badge/ElevenLabs-Speech-222222?style=flat-square" alt="ElevenLabs speech synthesis" width="125">
+    <img src="https://img.shields.io/badge/Status-Local%20prototype-64748B?style=flat-square" alt="Status: local prototype" width="150">
+  </p>
+  <img src="ai-doctor-2.0-voice-and-vision-main/portfolio-images/06-voice-and-image-ready.png" alt="Gradio interface with a recorded question and a skin image ready for processing" width="840">
+  <p><em>Recorded voice and image inputs ready for processing in the current interface.</em></p>
+  <p><a href="#-demo--screenshots">Demo</a> | <a href="ai-doctor-2.0-voice-and-vision-main/README.md">Docs</a> | <a href="#-architecture">Architecture</a> | <a href="#-getting-started">Quickstart</a></p>
+</div>
 
-A Gradio prototype that accepts a spoken question and an optional image, transcribes the audio, generates a context-aware response when an image is supplied, and reads the response aloud. It is a learning project for a multimodal inference workflow, not a clinically validated diagnostic tool.
+<details>
+<summary>Table of contents</summary>
 
-![Voice and image inputs ready in the Gradio interface](ai-doctor-2.0-voice-and-vision-main/portfolio-images/06-voice-and-image-ready.png)
+- [Problem and Solution](#-problem-and-solution)
+- [Key Features](#-key-features)
+- [Demo / Screenshots](#-demo--screenshots)
+- [Architecture](#-architecture)
+- [Tech Stack](#-tech-stack)
+- [Engineering Highlights](#-engineering-highlights)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [Roadmap](#-roadmap)
+- [Author](#-author)
 
-*The current interface with a recorded question and a skin image ready for processing.*
+</details>
 
-**Explore:** [Project showcase](#project-showcase) · [How it works](#how-it-works) · [Technology stack](#architecture-and-technology-stack) · [Getting started](#getting-started) · [Engineering notes](#engineering-notes)
+## 🎯 Problem and Solution
 
-## Project showcase
+Combining a spoken medical question with an image requires transcription, multimodal inference, and speech synthesis to share one request flow.
+This learning project connects those stages in a Gradio interface: Groq Whisper transcribes the question, Llama 4 Scout processes it with an image, and ElevenLabs reads the response aloud.
+It is a local demonstration without clinical validation or independently verified diagnoses; it does not retain conversation history.
 
-### Saved analysis
+## ✨ Key Features
 
-![Saved transcript and analysis beside the corresponding audio and image](ai-doctor-2.0-voice-and-vision-main/portfolio-images/07-saved-analysis.png)
-
-*An archived local run displayed in the current interface. The transcript and response are the exact saved values; the read-only text areas were expanded for legibility. This image does not represent a new model call.*
+- **Browser voice capture:** Record microphone audio in Gradio, then transcribe it with Groq-hosted `whisper-large-v3` to supply text to the vision workflow.
+- **Image-conditioned responses:** Combine the transcript, prompt, and uploaded image with `meta-llama/llama-4-scout-17b-16e-instruct` so the response can use both inputs.
+- **Spoken output:** Synthesize responses with ElevenLabs `eleven_turbo_v2` and the `Aria` voice, returning an MP3 for playback alongside the text.
+- **Input preview:** Review the captured audio and uploaded image before submission; the image input accepts different visual cases.
+- **Required audio validation:** Reject an empty audio input before any external service call, keeping incomplete submissions out of the inference flow.
+- **Deterministic no-image behavior:** Return and synthesize a fixed no-image message when no image is supplied, bypassing the vision model.
 
 | Voice capture | Image input |
 | --- | --- |
-| ![Recorded audio waveform and playback controls](ai-doctor-2.0-voice-and-vision-main/portfolio-images/03-voice-captured.png) | ![Scalp image loaded in the diagnostic input](ai-doctor-2.0-voice-and-vision-main/portfolio-images/05-scalp-image-input.png) |
-| A recorded patient question can be reviewed before submission. | The same image input accepts different visual cases. |
+| <img src="ai-doctor-2.0-voice-and-vision-main/portfolio-images/03-voice-captured.png" alt="Recorded audio waveform with playback controls in Gradio" width="400"> | <img src="ai-doctor-2.0-voice-and-vision-main/portfolio-images/05-scalp-image-input.png" alt="Scalp image loaded in the Gradio image input" width="400"> |
+| Review a recorded question before submission. | Preview a scalp image in the same image component. |
+
+## 📸 Demo / Screenshots
+
+<p align="center">
+  <img src="ai-doctor-2.0-voice-and-vision-main/portfolio-images/07-saved-analysis.png" alt="Saved transcript and response displayed beside the corresponding audio and image inputs" width="840">
+</p>
+
+*An archived local run displayed in the current interface. The transcript and response are the exact saved values; only the read-only text areas were expanded for legibility. This screenshot does not represent a new model call.*
+
+| Interface overview | Microphone capture | Skin image input |
+| --- | --- | --- |
+| <img src="ai-doctor-2.0-voice-and-vision-main/portfolio-images/01-overview.png" alt="Initial Gradio voice and vision interface" width="270"> | <img src="ai-doctor-2.0-voice-and-vision-main/portfolio-images/02-voice-recording.png" alt="Microphone recording in progress in Gradio" width="270"> | <img src="ai-doctor-2.0-voice-and-vision-main/portfolio-images/04-skin-image-input.png" alt="Skin image loaded in the Gradio image input" width="270"> |
+| Initial input and output layout. | Capture a spoken question. | Preview an uploaded skin image. |
 
 [View all seven screenshots](ai-doctor-2.0-voice-and-vision-main/portfolio-images/).
 
-## What the application does
-
-- 🎙️ **Voice input:** Captures microphone audio through Gradio and transcribes it with Groq-hosted Whisper `whisper-large-v3`.
-- 🖼️ **Image analysis:** When an image is provided, combines the transcript with a prompt and sends the image to Groq's `meta-llama/llama-4-scout-17b-16e-instruct` vision model.
-- 🔊 **Spoken response:** Displays the transcript and response, then synthesizes the response with ElevenLabs for audio playback.
-- **Input behavior:** Audio is required. Without an image, the app returns a fixed no-image message and still synthesizes that message.
-
-The app does not keep a conversation history or make a medical diagnosis that has been independently verified.
-
-## How it works
+## 🏗️ Architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[Browser microphone] --> B[Gradio audio file]
     B --> C[Groq Whisper large-v3]
-    C --> D[Transcript]
+    C --> D[English transcript]
     D --> E{Image supplied?}
     I[Optional image] --> J[Base64 data URL]
     J --> F[Groq Llama 4 Scout]
-    E -->|Yes| F
-    E -->|No| G[No-image response]
+    E -->|Yes: transcript and prompt| F
+    E -->|No| G[Fixed no-image response]
     F --> H[Response text]
     G --> H
     H --> K[ElevenLabs speech synthesis]
     K --> L[MP3 playback in Gradio]
 ```
 
-1. `gradio_app.py` receives file paths from the microphone and image components. The callback rejects an empty audio input before calling any external service.
-2. `voice_of_the_patient.py` sends the audio file to Groq for English transcription.
-3. For an uploaded image, `brain_of_the_doctor.py` Base64-encodes the file and sends it with the transcript to the vision model. Without an image, the callback uses its fixed fallback response.
-4. `voice_of_the_doctor.py` requests ElevenLabs speech synthesis. Gradio displays the transcript, response, and returned MP3 path.
+- `gradio_app.py` owns the UI, custom CSS, response prompt, validation, and orchestration; it receives audio and image file paths from Gradio.
+- `voice_of_the_patient.py` sends the audio file to Groq for English transcription and also contains a separate local recording helper.
+- `brain_of_the_doctor.py` Base64-encodes the image and sends it with the transcript and prompt; the optional-image branch avoids this call when no image is present.
+- `voice_of_the_doctor.py` requests speech synthesis and returns a file path; Gradio displays the transcript, response, and playable MP3.
+- The workflow depends on external APIs and uses a fixed `final.mp3` output path; simultaneous requests may overwrite one another's audio.
 
-## Architecture and technology stack
+## 🧰 Tech Stack
 
-| Component | Responsibility | Technology |
+| Layer | Technology | Purpose |
 | --- | --- | --- |
-| `gradio_app.py` | UI, input validation, workflow orchestration, response prompt | Python, Gradio Blocks, custom CSS |
-| `voice_of_the_patient.py` | Groq transcription; includes a separate local recording helper | Groq SDK, Whisper, SpeechRecognition, pydub |
-| `brain_of_the_doctor.py` | Image encoding and multimodal request | Groq SDK, Base64 data URL |
-| `voice_of_the_doctor.py` | Spoken response returned as a file path | ElevenLabs `eleven_turbo_v2` with the `Aria` voice; gTTS helpers are present but are not used by the Gradio workflow |
+| Frontend | Gradio 5.12.0 Blocks, custom CSS | Browser microphone capture, image upload, text output, and audio playback. |
+| Backend | Python 3.11 | UI callback and separate transcription, vision, and synthesis modules. |
+| Backend | SpeechRecognition, pydub, PyAudio, gTTS | Separate local recording and gTTS helpers; gTTS is unused by the Gradio workflow. |
+| AI / ML | Groq SDK, Whisper `whisper-large-v3` | Hosted English speech transcription. |
+| AI / ML | Groq SDK, `meta-llama/llama-4-scout-17b-16e-instruct` | Transcript- and image-conditioned response generation. |
+| AI / ML | ElevenLabs SDK, `eleven_turbo_v2`, `Aria` | Response speech synthesis used by the Gradio workflow. |
+| Data | File paths, Base64 data URLs, MP3 | Input handoff, image transport, and playable output; no persistence layer. |
+| DevOps | `requirements.txt`, `Pipfile`, `Pipfile.lock` | Dependency specifications and lockfile; `Pipfile` declares Python 3.11. |
 
-The repository pins Python 3.11 in `Pipfile` and includes both `requirements.txt` and `Pipfile.lock`. The Gradio application is launched from `gradio_app.py`; there is no `app.py` entry point.
+## ⚙️ Engineering Highlights
 
-## Getting started
+- **Integration boundaries:** Multiple model services require distinct inputs and outputs → the UI delegates transcription, image analysis, and speech synthesis to separate modules → the main request path remains easy to follow.
+- **File handoff:** Browser recordings and synthesized speech must reach the UI → Gradio supplies input paths and the TTS helper returns an MP3 path → playback consumes the returned file directly.
+- **Input branching:** Audio is required while an image is optional → validate audio before external calls and use a fixed no-image response → incomplete audio submissions are rejected and the no-image path skips vision inference.
+
+**Current limits:** No authentication, automated test suite, clinical validation, or production data-handling policy is provided. Audio, images, and response text are sent to external services; use this as a local demonstration and avoid identifiable patient data.
+
+**Image format caveat:** The vision helper labels every image data URL as JPEG regardless of the file's actual format. The UI can display other formats, but their model behavior has not been verified.
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Python 3.11 and a browser with microphone access.
 - A Groq API key for transcription and image analysis.
 - An ElevenLabs API key for synthesized speech.
+- Network access for the external API calls.
+
+### Install
 
 Clone the repository and enter the application directory:
 
@@ -82,7 +130,7 @@ cd AI-Medical-Voice-Vision-Assistant/ai-doctor-2.0-voice-and-vision-main
 python --version  # Confirm Python 3.11
 ```
 
-Create a virtual environment and install the pinned dependencies:
+Create a virtual environment and install the dependencies from `requirements.txt`:
 
 ```bash
 python -m venv .venv
@@ -91,51 +139,59 @@ python -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-`PyAudio` is included for the separate local recording helper and may require PortAudio build dependencies on some systems. The Gradio UI itself records through the browser.
+`PyAudio` supports the separate local recording helper and may require PortAudio build dependencies on some systems. The Gradio UI records through the browser.
 
-Create a `.env` file in this application directory:
+### Configure
 
-```dotenv
-GROQ_API_KEY=your_groq_api_key
-ELEVEN_API_KEY=your_elevenlabs_api_key
-```
+Create a `.env` file in the application directory and set these variables to your own credentials:
 
-The ElevenLabs variable is named `ELEVEN_API_KEY` in the code. Keep `.env` out of commits and avoid using identifiable patient data: audio, images, and response text are sent to external services.
+- `GROQ_API_KEY`
+- `ELEVEN_API_KEY`
 
-Run the interface:
+The ElevenLabs variable is named `ELEVEN_API_KEY` in the code. `.env` is excluded by `.gitignore`; keep API keys and patient data out of commits.
+
+### Run
 
 ```bash
 python gradio_app.py
 ```
 
-Open the local URL printed by Gradio, usually `http://127.0.0.1:7860`. Record a question, optionally add an image, and select **INITIALIZE DIAGNOSIS**. The external API calls require network access and valid keys.
+Open the local URL printed by Gradio, usually `http://127.0.0.1:7860`. Record a question, optionally add an image, and select **INITIALIZE DIAGNOSIS**.
+The application entry point is `gradio_app.py`; there is no `app.py` entry point.
 
-## Repository layout
+## 📂 Project Structure
 
 ```text
 AI-Medical-Voice-Vision-Assistant/
 ├── README.md                              # Repository overview
-└── ai-doctor-2.0-voice-and-vision-main/
-    ├── gradio_app.py                      # UI and callback
-    ├── brain_of_the_doctor.py             # Vision model request
-    ├── voice_of_the_patient.py            # Transcription and recording helper
-    ├── voice_of_the_doctor.py             # Speech synthesis
-    ├── requirements.txt                   # Pinned pip dependencies
-    ├── Pipfile / Pipfile.lock              # Python version and lockfile
-    ├── portfolio-images/                  # Project screenshots
-    └── *.jpg, *.webp                       # Sample images
+└── ai-doctor-2.0-voice-and-vision-main/     # Application and dependencies
+    ├── gradio_app.py                      # UI, prompt, validation, and callback
+    ├── brain_of_the_doctor.py             # Image encoding and vision request
+    ├── voice_of_the_patient.py            # Transcription and local recording helper
+    ├── voice_of_the_doctor.py             # ElevenLabs synthesis and gTTS helpers
+    ├── requirements.txt                  # pip dependency specifications
+    ├── Pipfile / Pipfile.lock             # Python version and dependency lockfile
+    ├── portfolio-images/                 # Seven screenshots
+    └── *.jpg, *.webp                      # Sample images
 ```
 
-## Engineering notes
+## 🗺️ Roadmap
 
-- **Clear integration boundaries.** The UI callback delegates transcription, image analysis, and speech synthesis to separate modules, keeping the main request path easy to follow.
-- **File-path handoff.** Gradio supplies paths for recorded audio and uploaded images; the TTS helper returns a path that Gradio can play directly.
-- **Explicit image branch.** An image is optional, while audio is required. The no-image path returns a deterministic response without calling the vision model.
-- **Current limits.** The generated audio is written to the fixed path `final.mp3`, so concurrent requests may overwrite one another. There is no authentication, persistence layer, automated test suite, clinical validation, or production data-handling policy. Treat this as a local demonstration.
-- **Image format caveat.** The vision helper labels its data URL as JPEG regardless of the uploaded file's actual format. The UI can display other image formats, but their model behavior has not been verified.
+The following next steps address the documented limitations and contribution priorities:
 
-## Development and contributions
+- [x] Connect voice capture, transcription, optional image analysis, and speech playback in one interface.
+- [ ] Add automated coverage for input validation and the image/no-image branches.
+- [ ] Replace the fixed `final.mp3` path with output handling that isolates concurrent requests.
+- [ ] Match image data URL MIME types to uploaded formats and verify their model behavior.
+- [ ] Improve accessibility and error reporting.
 
-Keep changes focused on the existing workflow and document any new external service or environment variable. Before opening a pull request, run the app locally and exercise microphone capture, image upload, the no-image path, and playback. Add tests for new logic where practical; none are configured today. Never commit API keys or patient data.
+Issues and pull requests are welcome. Keep changes focused on the existing workflow and document new external services or environment variables.
+Before opening a pull request, exercise microphone capture, image upload, the no-image path, and playback locally; add tests for new logic where practical. No test suite is configured today.
 
-Issues and pull requests are welcome, especially for test coverage, safer output-file handling, accessibility, and clearer error reporting.
+## 👤 Author
+
+**Vinayak K V** · AI/ML Engineer at AMnova Technologies
+
+[GitHub](https://github.com/vinayak533) · [LinkedIn](https://linkedin.com/in/vinayak-kv-ds) · [Email](mailto:vinayakkvjob@gmail.com)
+
+Building production multi-agent AI systems. Open to technical discussions and collaboration.
